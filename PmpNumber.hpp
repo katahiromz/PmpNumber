@@ -49,44 +49,23 @@ typedef b_mp::cpp_dec_float_50      pmp_floating_type;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class PmpNumber;
-
-namespace std
-{
-    PmpNumber abs(const PmpNumber& num1);
-    PmpNumber fabs(const PmpNumber& num1);
-    PmpNumber sqrt(const PmpNumber& num1);
-    PmpNumber floor(const PmpNumber& num1);
-    PmpNumber ceil(const PmpNumber& num1);
-    PmpNumber exp(const PmpNumber& num1);
-    PmpNumber log(const PmpNumber& num1);
-    PmpNumber log10(const PmpNumber& num1);
-    PmpNumber cos(const PmpNumber& num1);
-    PmpNumber sin(const PmpNumber& num1);
-    PmpNumber tan(const PmpNumber& num1);
-    PmpNumber acos(const PmpNumber& num1);
-    PmpNumber asin(const PmpNumber& num1);
-    PmpNumber atan(const PmpNumber& num1);
-    PmpNumber cosh(const PmpNumber& num1);
-    PmpNumber sinh(const PmpNumber& num1);
-    PmpNumber tanh(const PmpNumber& num1);
-    PmpNumber pow(const PmpNumber& num1, const PmpNumber& num2);
-    PmpNumber fmod(const PmpNumber& num1, const PmpNumber& num2);
-    PmpNumber atan2(const PmpNumber& num1, const PmpNumber& num2);
-} // namespace std
-
-/////////////////////////////////////////////////////////////////////////////
-
 class PmpNumber
 {
 public:
-    PmpNumber() : m_inner(make_shared<Inner>(0)) { }
-    PmpNumber(int i) : m_inner(make_shared<Inner>(i)) { }
-    PmpNumber(__int64 i) : m_inner(make_shared<Inner>(i)) { }
-    PmpNumber(double f) : m_inner(make_shared<Inner>(f)) { }
-    PmpNumber(long double f) : m_inner(make_shared<Inner>(f)) { }
-    PmpNumber(const pmp_integer_type& i) : m_inner(make_shared<Inner>(i)) { }
+    enum Type
+    {
+        INTEGER, FLOATING
+    };
+
+    PmpNumber()                 : m_inner(make_shared<Inner>(0)) { }
+    PmpNumber(int i)            : m_inner(make_shared<Inner>(i)) { }
+    PmpNumber(__int64 i)        : m_inner(make_shared<Inner>(i)) { }
+    PmpNumber(double f)         : m_inner(make_shared<Inner>(f)) { }
+    PmpNumber(long double f)    : m_inner(make_shared<Inner>(f)) { }
+    PmpNumber(const pmp_integer_type& i)  : m_inner(make_shared<Inner>(i)) { }
     PmpNumber(const pmp_floating_type& f) : m_inner(make_shared<Inner>(f)) { }
+    PmpNumber(Type type, const std::string& str);
+    PmpNumber(const std::string& str);
     PmpNumber(const PmpNumber& num) : m_inner(num.m_inner) { }
 
     PmpNumber& operator=(const PmpNumber& num)
@@ -154,8 +133,8 @@ public:
     template <typename T>
     T convert_to();
 
-    bool is_i() const { return m_inner->m_type == Inner::INTEGER; }
-    bool is_f() const { return m_inner->m_type == Inner::FLOATING; }
+    bool is_i() const { return m_inner->m_type == INTEGER; }
+    bool is_f() const { return m_inner->m_type == FLOATING; }
 
     int compare(int n) const
     {
@@ -260,38 +239,33 @@ public:
     friend std::basic_ostream<CharT>&
     operator<<(std::basic_ostream<CharT>& o, const PmpNumber& num);
 
-    friend PmpNumber std::abs(const PmpNumber& num1);
-    friend PmpNumber std::fabs(const PmpNumber& num1);
-    friend PmpNumber std::sqrt(const PmpNumber& num1);
-    friend PmpNumber std::floor(const PmpNumber& num1);
-    friend PmpNumber std::ceil(const PmpNumber& num1);
-    friend PmpNumber std::exp(const PmpNumber& num1);
-    friend PmpNumber std::log(const PmpNumber& num1);
-    friend PmpNumber std::log10(const PmpNumber& num1);
-    friend PmpNumber std::cos(const PmpNumber& num1);
-    friend PmpNumber std::sin(const PmpNumber& num1);
-    friend PmpNumber std::tan(const PmpNumber& num1);
-    friend PmpNumber std::acos(const PmpNumber& num1);
-    friend PmpNumber std::asin(const PmpNumber& num1);
-    friend PmpNumber std::atan(const PmpNumber& num1);
-    friend PmpNumber std::cosh(const PmpNumber& num1);
-    friend PmpNumber std::sinh(const PmpNumber& num1);
-    friend PmpNumber std::tanh(const PmpNumber& num1);
-    friend PmpNumber std::pow(const PmpNumber& num1, const PmpNumber& num2);
-    friend PmpNumber std::fmod(const PmpNumber& num1, const PmpNumber& num2);
-    friend PmpNumber std::atan2(const PmpNumber& num1, const PmpNumber& num2);
+    friend PmpNumber abs(const PmpNumber& num1);
+    friend PmpNumber fabs(const PmpNumber& num1);
+    friend PmpNumber sqrt(const PmpNumber& num1);
+    friend PmpNumber floor(const PmpNumber& num1);
+    friend PmpNumber ceil(const PmpNumber& num1);
+    friend PmpNumber exp(const PmpNumber& num1);
+    friend PmpNumber log(const PmpNumber& num1);
+    friend PmpNumber log10(const PmpNumber& num1);
+    friend PmpNumber cos(const PmpNumber& num1);
+    friend PmpNumber sin(const PmpNumber& num1);
+    friend PmpNumber tan(const PmpNumber& num1);
+    friend PmpNumber acos(const PmpNumber& num1);
+    friend PmpNumber asin(const PmpNumber& num1);
+    friend PmpNumber atan(const PmpNumber& num1);
+    friend PmpNumber cosh(const PmpNumber& num1);
+    friend PmpNumber sinh(const PmpNumber& num1);
+    friend PmpNumber tanh(const PmpNumber& num1);
+    friend PmpNumber pow(const PmpNumber& num1, const PmpNumber& num2);
+    friend PmpNumber fmod(const PmpNumber& num1, const PmpNumber& num2);
+    friend PmpNumber atan2(const PmpNumber& num1, const PmpNumber& num2);
 
 protected:
     struct Inner
     {
-        enum Type
-        {
-            INTEGER, FLOATING
-        };
-
-        Type            m_type;
-        pmp_integer_type *  m_integer;
-        pmp_floating_type * m_floating;
+        Type                    m_type;
+        pmp_integer_type *      m_integer;
+        pmp_floating_type *     m_floating;
 
         Inner() : m_type(INTEGER), m_integer(new pmp_integer_type())
         {
@@ -341,9 +315,36 @@ protected:
 
         Inner(const Inner& inner) :
             m_type(inner.m_type),
-            m_integer(inner.m_integer ? new pmp_integer_type(*inner.m_integer) : NULL),
-            m_floating(inner.m_floating ? new pmp_floating_type(*inner.m_floating) : NULL)
+            m_integer(NULL),
+            m_floating(NULL)
         {
+            m_integer = (inner.m_integer
+                            ? new pmp_integer_type(*inner.m_integer)
+                            : NULL);
+            m_floating = (inner.m_floating
+                            ? new pmp_floating_type(*inner.m_floating)
+                            : NULL);
+        }
+
+        Inner(Type type, const std::string& str) :
+            m_type(type),
+            m_integer(NULL),
+            m_floating(NULL)
+        {
+            switch (type)
+            {
+            case INTEGER:
+                m_integer = new pmp_integer_type(str);
+                break;
+
+            case FLOATING:
+                m_floating = new pmp_floating_type(str);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
         }
 
         ~Inner()
@@ -355,30 +356,15 @@ protected:
     shared_ptr<Inner> m_inner;
 }; // class PmpNumber
 
-inline PmpNumber std::abs(const PmpNumber& num1)
-{
-    return PmpNumber(std::fabs(num1.to_f()));
-}
-
-inline PmpNumber std::fabs(const PmpNumber& num1)
-{
-    return PmpNumber(std::fabs(num1.to_f()));
-}
-
-inline PmpNumber std::sqrt(const PmpNumber& num1)
-{
-    return PmpNumber(std::sqrt(num1.to_f()));
-}
-
 template <typename T>
 inline T PmpNumber::convert_to()
 {
     switch (m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case INTEGER:
         return m_inner->m_integer->convert_to<T>();
 
-    case Inner::FLOATING:
+    case FLOATING:
         return m_inner->m_floating->convert_to<T>();
 
     default:
@@ -390,98 +376,122 @@ inline T PmpNumber::convert_to()
 /////////////////////////////////////////////////////////////////////////////
 // Non-member functions
 
+inline PmpNumber abs(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::abs(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber fabs(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::fabs(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber sqrt(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::sqrt(num1.to_f());
+    return PmpNumber(floating);
+}
+
+PmpNumber floor(const PmpNumber& num1);
+PmpNumber ceil(const PmpNumber& num1);
+
+inline PmpNumber exp(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::exp(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber log(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::log(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber log10(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::log10(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber cos(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::cos(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber sin(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::sin(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber tan(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::tan(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber acos(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::acos(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber asin(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::asin(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber atan(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::atan(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber cosh(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::cosh(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber sinh(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::sinh(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber tanh(const PmpNumber& num1)
+{
+    pmp_floating_type floating = b_mp::tanh(num1.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber pow(const PmpNumber& num1, const PmpNumber& num2)
+{
+    pmp_floating_type floating = b_mp::pow(num1.to_f(), num2.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber fmod(const PmpNumber& num1, const PmpNumber& num2)
+{
+    pmp_floating_type floating = b_mp::fmod(num1.to_f(), num2.to_f());
+    return PmpNumber(floating);
+}
+
+inline PmpNumber atan2(const PmpNumber& num1, const PmpNumber& num2)
+{
+    pmp_floating_type floating = b_mp::atan2(num1.to_f(), num2.to_f());
+    return PmpNumber(floating);
+}
+
 namespace std
 {
     inline void swap(PmpNumber& num1, PmpNumber& num2)
     {
         num1.swap(num2);
-    }
-
-    inline PmpNumber exp(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(exp(num1.to_f())));
-    }
-
-    inline PmpNumber log(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(log(num1.to_f())));
-    }
-
-    inline PmpNumber log10(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(log10(num1.to_f())));
-    }
-
-    inline PmpNumber cos(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(cos(num1.to_f())));
-    }
-
-    inline PmpNumber sin(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(sin(num1.to_f())));
-    }
-
-    inline PmpNumber tan(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(tan(num1.to_f())));
-    }
-
-    inline PmpNumber acos(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(acos(num1.to_f())));
-    }
-
-    inline PmpNumber asin(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(asin(num1.to_f())));
-    }
-
-    inline PmpNumber atan(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(atan(num1.to_f())));
-    }
-
-    inline PmpNumber cosh(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(cosh(num1.to_f())));
-    }
-
-    inline PmpNumber sinh(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(sinh(num1.to_f())));
-    }
-
-    inline PmpNumber tanh(const PmpNumber& num1)
-    {
-        using namespace std;
-        return PmpNumber(static_cast<pmp_floating_type>(tanh(num1.to_f())));
-    }
-
-    inline PmpNumber pow(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        return PmpNumber(std::pow(num1.to_f(), num2.to_f()));
-    }
-
-    inline PmpNumber fmod(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        return PmpNumber(std::fmod(num1.to_f(), num2.to_f()));
-    }
-
-    inline PmpNumber atan2(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        return PmpNumber(std::atan2(num1.to_f(), num2.to_f()));
     }
 } // namespace std
 

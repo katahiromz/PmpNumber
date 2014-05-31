@@ -5,22 +5,39 @@
 
 #include "PmpNumber.hpp"
 
+PmpNumber::PmpNumber(Type type, const std::string& str) :
+    m_inner(shared_ptr<Inner>(new Inner(type, str)))
+{
+}
+
+PmpNumber::PmpNumber(const std::string& str)
+{
+    if (str.find('.') == std::string::npos &&
+        str.find("e+") == std::string::npos &&
+        str.find("e-") == std::string::npos)
+    {
+        m_inner = shared_ptr<Inner>(new Inner(INTEGER, str));
+    }
+    else
+        m_inner = shared_ptr<Inner>(new Inner(FLOATING, str));
+}
+
 PmpNumber& PmpNumber::operator+=(const PmpNumber& num)
 {
     pmp_integer_type    i;
     pmp_floating_type   f;
     switch(m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case PmpNumber::INTEGER:
         switch(num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             i = *m_inner->m_integer;
             i += *num.m_inner->m_integer;
             assign(i);
             break;
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = pmp_floating_type(*m_inner->m_integer);
             f += *num.m_inner->m_floating;
             assign(f);
@@ -32,16 +49,16 @@ PmpNumber& PmpNumber::operator+=(const PmpNumber& num)
         }
         break;
 
-    case Inner::FLOATING:
+    case PmpNumber::FLOATING:
         switch(num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             f = *m_inner->m_floating;
             f += static_cast<pmp_floating_type>(*num.m_inner->m_integer);
             assign(f);
             break;
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = *m_inner->m_floating;
             f += *num.m_inner->m_floating;
             assign(f);
@@ -62,16 +79,16 @@ PmpNumber& PmpNumber::operator-=(const PmpNumber& num)
     pmp_floating_type   f;
     switch(m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case PmpNumber::INTEGER:
         switch(num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             i = *m_inner->m_integer;
             i -= *num.m_inner->m_integer;
             assign(i);
             break;
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = pmp_floating_type(*m_inner->m_integer);
             f -= *num.m_inner->m_floating;
             assign(f);
@@ -83,16 +100,16 @@ PmpNumber& PmpNumber::operator-=(const PmpNumber& num)
         }
         break;
 
-    case Inner::FLOATING:
+    case PmpNumber::FLOATING:
         switch(num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             f = *m_inner->m_floating;
             f -= static_cast<pmp_floating_type>(*num.m_inner->m_integer);
             assign(f);
             break;
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = *m_inner->m_floating;
             f -= *num.m_inner->m_floating;
             assign(f);
@@ -113,16 +130,16 @@ PmpNumber& PmpNumber::operator*=(const PmpNumber& num)
     pmp_floating_type   f;
     switch(m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case PmpNumber::INTEGER:
         switch(num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             i = *m_inner->m_integer;
             i *= *num.m_inner->m_integer;
             assign(i);
             break;
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = pmp_floating_type(*m_inner->m_integer);
             f *= *num.m_inner->m_floating;
             assign(f);
@@ -134,16 +151,16 @@ PmpNumber& PmpNumber::operator*=(const PmpNumber& num)
         }
         break;
 
-    case Inner::FLOATING:
+    case PmpNumber::FLOATING:
         switch(num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             f = *m_inner->m_floating;
             f *= static_cast<pmp_floating_type>(*num.m_inner->m_integer);
             assign(f);
             break;
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = *m_inner->m_floating;
             f *= *num.m_inner->m_floating;
             assign(f);
@@ -164,10 +181,10 @@ PmpNumber& PmpNumber::operator/=(const PmpNumber& num)
     pmp_floating_type   f;
     switch(m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case PmpNumber::INTEGER:
         switch(num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             if (b_mp::gcd(*m_inner->m_integer, *num.m_inner->m_integer) == 1)
             {
                 f = static_cast<pmp_floating_type>(*m_inner->m_integer);
@@ -182,7 +199,7 @@ PmpNumber& PmpNumber::operator/=(const PmpNumber& num)
             }
             break;
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = pmp_floating_type(*m_inner->m_integer);
             f /= *num.m_inner->m_floating;
             assign(f);
@@ -194,16 +211,16 @@ PmpNumber& PmpNumber::operator/=(const PmpNumber& num)
         }
         break;
 
-    case Inner::FLOATING:
+    case PmpNumber::FLOATING:
         switch(num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             f = static_cast<pmp_floating_type>(*m_inner->m_integer);
             f /= static_cast<pmp_floating_type>(*num.m_inner->m_integer);
             assign(f);
             break;
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = *m_inner->m_floating;
             f /= *num.m_inner->m_floating;
             assign(f);
@@ -228,16 +245,16 @@ PmpNumber& PmpNumber::operator%=(const PmpNumber& num)
     pmp_floating_type   f;
     switch(m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case PmpNumber::INTEGER:
         switch(num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             i = *m_inner->m_integer;
             i %= *num.m_inner->m_integer;
             assign(i);
             break;
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = pmp_floating_type(*m_inner->m_integer);
             f = b_mp::fmod(f, *num.m_inner->m_floating);
             assign(f);
@@ -249,16 +266,16 @@ PmpNumber& PmpNumber::operator%=(const PmpNumber& num)
         }
         break;
 
-    case Inner::FLOATING:
+    case PmpNumber::FLOATING:
         switch(num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             f = *m_inner->m_floating;
             f = b_mp::fmod(f, static_cast<pmp_floating_type>(*num.m_inner->m_integer));
             assign(f);
             break;
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = *m_inner->m_floating;
             f = b_mp::fmod(f, *num.m_inner->m_floating);
             assign(f);
@@ -281,10 +298,10 @@ bool PmpNumber::is_zero() const
 {
     switch (m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case PmpNumber::INTEGER:
         return m_inner->m_integer->is_zero();
 
-    case Inner::FLOATING:
+    case PmpNumber::FLOATING:
         return m_inner->m_floating->is_zero();
 
     default:
@@ -297,10 +314,10 @@ std::string PmpNumber::str() const
 {
     switch (m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case PmpNumber::INTEGER:
         return m_inner->m_integer->str();
 
-    case Inner::FLOATING:
+    case PmpNumber::FLOATING:
         return m_inner->m_floating->str();
 
     default:
@@ -313,10 +330,10 @@ pmp_integer_type PmpNumber::to_i() const
 {
     switch (m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case PmpNumber::INTEGER:
         return *m_inner->m_integer;
 
-    case Inner::FLOATING:
+    case PmpNumber::FLOATING:
         return pmp_integer_type(m_inner->m_floating->str());
 
     default:
@@ -329,10 +346,10 @@ pmp_floating_type PmpNumber::to_f() const
 {
     switch (m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case PmpNumber::INTEGER:
         return pmp_floating_type(*m_inner->m_integer);
 
-    case Inner::FLOATING:
+    case PmpNumber::FLOATING:
         return *m_inner->m_floating;
 
     default:
@@ -346,13 +363,13 @@ int PmpNumber::compare(const PmpNumber& num) const
     pmp_floating_type f;
     switch (m_inner->m_type)
     {
-    case Inner::INTEGER:
+    case PmpNumber::INTEGER:
         switch (num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             return m_inner->m_integer->compare(*num.m_inner->m_integer);
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             f = static_cast<pmp_floating_type>(*m_inner->m_integer);
             return f.compare(*num.m_inner->m_floating);
 
@@ -361,14 +378,14 @@ int PmpNumber::compare(const PmpNumber& num) const
             return 0;
         }
 
-    case Inner::FLOATING:
+    case PmpNumber::FLOATING:
         switch (num.m_inner->m_type)
         {
-        case Inner::INTEGER:
+        case PmpNumber::INTEGER:
             f = static_cast<pmp_floating_type>(*num.m_inner->m_integer);
             return m_inner->m_floating->compare(f);
 
-        case Inner::FLOATING:
+        case PmpNumber::FLOATING:
             return m_inner->m_floating->compare(*num.m_inner->m_floating);
 
         default:
@@ -389,14 +406,14 @@ void PmpNumber::trim()
 
     switch (m_inner->m_type)
     {
-    case PmpNumber::Inner::INTEGER:
+    case PmpNumber::INTEGER:
         break;
 
-    case PmpNumber::Inner::FLOATING:
+    case PmpNumber::FLOATING:
         i = pmp_integer_type(m_inner->m_floating->str());
         f = static_cast<pmp_floating_type>(i);
         if (f == *m_inner->m_floating)
-            *this = i;
+            assign(i);
         break;
 
     default:
@@ -412,10 +429,10 @@ PmpNumber operator-(const PmpNumber& num1)
 {
     switch (num1.m_inner->m_type)
     {
-    case PmpNumber::Inner::INTEGER:
+    case PmpNumber::INTEGER:
         return PmpNumber(static_cast<pmp_integer_type>(-(*num1.m_inner->m_integer)));
 
-    case PmpNumber::Inner::FLOATING:
+    case PmpNumber::FLOATING:
         return PmpNumber(static_cast<pmp_floating_type>(-(*num1.m_inner->m_floating)));
 
     default:
@@ -430,11 +447,11 @@ operator<<(std::basic_ostream<CharT>& o, const PmpNumber& num)
 {
     switch (num.m_inner->m_type)
     {
-    case PmpNumber::Inner::INTEGER:
+    case PmpNumber::INTEGER:
         o << num.m_inner->m_integer->str();
         break;
 
-    case PmpNumber::Inner::FLOATING:
+    case PmpNumber::FLOATING:
         o << num.m_inner->m_floating->str();
         break;
 
@@ -445,41 +462,41 @@ operator<<(std::basic_ostream<CharT>& o, const PmpNumber& num)
     return o;
 }
 
-
-namespace std
+PmpNumber floor(const PmpNumber& num1)
 {
-    PmpNumber floor(const PmpNumber& num1)
+    pmp_floating_type f;
+    switch (num1.m_inner->m_type)
     {
-        switch (num1.m_inner->m_type)
-        {
-        case PmpNumber::Inner::INTEGER:
-            return num1;
+    case PmpNumber::INTEGER:
+        return num1;
 
-        case PmpNumber::Inner::FLOATING:
-            return PmpNumber(std::floor(*num1.m_inner->m_floating));
+    case PmpNumber::FLOATING:
+        f = b_mp::floor(*num1.m_inner->m_floating);
+        return PmpNumber(f);
 
-        default:
-            assert(0);
-            return 0;
-        }
+    default:
+        assert(0);
+        return 0;
     }
+}
 
-    PmpNumber ceil(const PmpNumber& num1)
+PmpNumber ceil(const PmpNumber& num1)
+{
+    pmp_floating_type f;
+    switch (num1.m_inner->m_type)
     {
-        switch (num1.m_inner->m_type)
-        {
-        case PmpNumber::Inner::INTEGER:
-            return num1;
+    case PmpNumber::INTEGER:
+        return num1;
 
-        case PmpNumber::Inner::FLOATING:
-            return PmpNumber(std::ceil(*num1.m_inner->m_floating));
+    case PmpNumber::FLOATING:
+        f = b_mp::ceil(*num1.m_inner->m_floating);
+        return PmpNumber(f);
 
-        default:
-            assert(0);
-            return 0;
-        }
+    default:
+        assert(0);
+        return 0;
     }
-} // namespace std
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // unit test and example
@@ -602,17 +619,21 @@ namespace std
         assert(n3 == 0.0);
         std::cout << n3 << std::endl;
 
-        n3 = std::sin(n1);
+        n3 = abs(PmpNumber("0x1111111111111111111111111111111111111111111111111111111"));
         std::cout << n3 << std::endl;
-        n3 = std::sin(n2);
+        n3 = sin(n1);
         std::cout << n3 << std::endl;
-        n3 = std::cos(n1);
+        n3 = sin(n2);
         std::cout << n3 << std::endl;
-        n3 = std::cos(n2);
+        n3 = cos(n1);
         std::cout << n3 << std::endl;
-        n3 = std::tan(n1);
+        n3 = cos(n2);
         std::cout << n3 << std::endl;
-        n3 = std::tan(n2);
+        n3 = tan(n1);
+        std::cout << n3 << std::endl;
+        n3 = tan(n2);
+        std::cout << n3 << std::endl;
+        n3 = pow(n1, n2);
         std::cout << n3 << std::endl;
 
         PmpNumber n4(1.2);
