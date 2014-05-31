@@ -1,0 +1,3 @@
+PmpNumber requires g++, clang++ or Visual C++ 2013 to build.
+PmpNumber requires Boost libraries to build.
+Set the include path to your Boost before building.

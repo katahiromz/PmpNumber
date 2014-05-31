@@ -1,0 +1,31 @@
+# Makefile.g++ --- Makefile for GNU C++
+# Usage: make -f Makefile.g++
+
+DOTEXE = .exe
+DOTOBJ = .o
+
+CXX = g++
+
+#BOOST_DIR = .
+BOOST_DIR = /c/local/boost_1_55_0
+
+DEFS = -std=c++0x -static -DUNITTEST
+
+INCLUDES = -I$(BOOST_DIR)
+
+CXXFLAGS = $(DEFS) $(INCLUDES) -O9 -Ofast -DNDEBUG
+#CXXFLAGS = $(DEFS) $(INCLUDES) -O0 -g -ggdb -DDEBUG -D_DEBUG
+
+HEADERS = \
+	PmpNumber.hpp \
+
+OBJS = PmpNumber$(DOTOBJ)
+
+PmpNumber$(DOTEXE): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o PmpNumber$(DOTEXE) $(OBJS)
+
+PmpNumber$(DOTOBJ): $(HEADERS) PmpNumber.cpp
+	$(CXX) -c $(CXXFLAGS) PmpNumber.cpp
+
+clean:
+	rm -f *$(DOTOBJ)

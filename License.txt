@@ -1,0 +1,3 @@
+Copyright (C) 2014 Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>.
+
+This software is public domain software (PDS).
