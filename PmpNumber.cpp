@@ -619,21 +619,23 @@ PmpNumber ceil(const PmpNumber& num1)
         assert(n3 == 0.0);
         std::cout << n3 << std::endl;
 
-        n3 = abs(PmpNumber("0x1111111111111111111111111111111111111111111111111111111"));
+        n3 = pmp::abs(PmpNumber("-1111111111111111111111111111111111111111111111111111111"));
         std::cout << n3 << std::endl;
-        n3 = sin(n1);
+        n3 = pmp::fabs(PmpNumber("-1111111111111111111111111111111111111111111111111111111.0"));
         std::cout << n3 << std::endl;
-        n3 = sin(n2);
+        n3 = pmp::sin(n1);
         std::cout << n3 << std::endl;
-        n3 = cos(n1);
+        n3 = pmp::sin(n2);
         std::cout << n3 << std::endl;
-        n3 = cos(n2);
+        n3 = pmp::cos(n1);
         std::cout << n3 << std::endl;
-        n3 = tan(n1);
+        n3 = pmp::cos(n2);
         std::cout << n3 << std::endl;
-        n3 = tan(n2);
+        n3 = pmp::tan(n1);
         std::cout << n3 << std::endl;
-        n3 = pow(n1, n2);
+        n3 = pmp::tan(n2);
+        std::cout << n3 << std::endl;
+        n3 = pmp::pow(n1, n2);
         std::cout << n3 << std::endl;
 
         PmpNumber n4(1.2);

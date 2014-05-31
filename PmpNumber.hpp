@@ -123,7 +123,7 @@ public:
 
     bool is_zero() const;
     bool operator!() const { return is_zero(); }
-    std::string     str() const;
+    std::string str() const;
 
     pmp_integer_type    to_i() const;   // to integer
     pmp_floating_type   to_f() const;   // to floating
@@ -376,115 +376,118 @@ inline T PmpNumber::convert_to()
 /////////////////////////////////////////////////////////////////////////////
 // Non-member functions
 
-inline PmpNumber abs(const PmpNumber& num1)
+namespace pmp
 {
-    pmp_floating_type floating = b_mp::abs(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber abs(const PmpNumber& num1)
+    {
+        pmp_integer_type i = b_mp::abs(num1.to_i());
+        return PmpNumber(i);
+    }
 
-inline PmpNumber fabs(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::fabs(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber fabs(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::fabs(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber sqrt(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::sqrt(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber sqrt(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::sqrt(num1.to_f());
+        return PmpNumber(f);
+    }
 
-PmpNumber floor(const PmpNumber& num1);
-PmpNumber ceil(const PmpNumber& num1);
+    PmpNumber floor(const PmpNumber& num1);
+    PmpNumber ceil(const PmpNumber& num1);
 
-inline PmpNumber exp(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::exp(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber exp(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::exp(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber log(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::log(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber log(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::log(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber log10(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::log10(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber log10(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::log10(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber cos(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::cos(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber cos(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::cos(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber sin(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::sin(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber sin(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::sin(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber tan(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::tan(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber tan(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::tan(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber acos(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::acos(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber acos(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::acos(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber asin(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::asin(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber asin(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::asin(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber atan(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::atan(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber atan(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::atan(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber cosh(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::cosh(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber cosh(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::cosh(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber sinh(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::sinh(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber sinh(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::sinh(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber tanh(const PmpNumber& num1)
-{
-    pmp_floating_type floating = b_mp::tanh(num1.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber tanh(const PmpNumber& num1)
+    {
+        pmp_floating_type f = b_mp::tanh(num1.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber pow(const PmpNumber& num1, const PmpNumber& num2)
-{
-    pmp_floating_type floating = b_mp::pow(num1.to_f(), num2.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber pow(const PmpNumber& num1, const PmpNumber& num2)
+    {
+        pmp_floating_type f = b_mp::pow(num1.to_f(), num2.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber fmod(const PmpNumber& num1, const PmpNumber& num2)
-{
-    pmp_floating_type floating = b_mp::fmod(num1.to_f(), num2.to_f());
-    return PmpNumber(floating);
-}
+    inline PmpNumber fmod(const PmpNumber& num1, const PmpNumber& num2)
+    {
+        pmp_floating_type f = b_mp::fmod(num1.to_f(), num2.to_f());
+        return PmpNumber(f);
+    }
 
-inline PmpNumber atan2(const PmpNumber& num1, const PmpNumber& num2)
-{
-    pmp_floating_type floating = b_mp::atan2(num1.to_f(), num2.to_f());
-    return PmpNumber(floating);
+    inline PmpNumber atan2(const PmpNumber& num1, const PmpNumber& num2)
+    {
+        pmp_floating_type f = b_mp::atan2(num1.to_f(), num2.to_f());
+        return PmpNumber(f);
+    }
 }
 
 namespace std
