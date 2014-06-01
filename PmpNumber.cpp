@@ -368,13 +368,20 @@ namespace pmp
 
     integer_type Number::to_i() const
     {
+		std::string str;
+		std::size_t i;
         switch (get_type())
         {
         case Number::INTEGER:
             return get_i();
 
         case Number::FLOATING:
-            return integer_type(get_f().str());
+			str = get_f().str();
+			i = str.find('.');
+			if (i != std::string::npos)
+				return integer_type(str.substr(0, i));
+			else
+				return integer_type(str);
 
         default:
             assert(0);
