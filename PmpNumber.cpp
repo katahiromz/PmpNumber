@@ -5,6 +5,17 @@
 
 #include "PmpNumber.hpp"
 
+namespace pmp
+{
+    static bool s_integer_division_enabled = false;
+    bool EnableIntegerDivision(bool enabled/* = true*/)
+    {
+        bool was_enabled = s_integer_division_enabled;
+        s_integer_division_enabled = enabled;
+        return was_enabled;
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 namespace pmp
@@ -189,22 +200,31 @@ namespace pmp
             switch(num.get_type())
             {
             case Number::INTEGER:
-                if (b_mp::gcd(get_i(), num.get_i()) == 1)
-                {
-                    f = static_cast<floating_type>(get_i());
-                    f /= static_cast<floating_type>(num.get_i());
-                    assign(f);
-                }
-                else
+                if (s_integer_division_enabled)
                 {
                     i = get_i();
                     i /= num.get_i();
                     assign(i);
                 }
+                else
+                {
+                    if (b_mp::fmod(to_f(), num.to_f()) != 0)
+                    {
+                        f = to_f();
+                        f /= num.to_f();
+                        assign(f);
+                    }
+                    else
+                    {
+                        i = get_i();
+                        i /= num.get_i();
+                        assign(i);
+                    }
+                }
                 break;
 
             case Number::FLOATING:
-                f = floating_type(get_i());
+                f = static_cast<floating_type>(get_i());
                 f /= num.get_f();
                 assign(f);
                 break;
@@ -219,7 +239,7 @@ namespace pmp
             switch(num.get_type())
             {
             case Number::INTEGER:
-                f = static_cast<floating_type>(get_i());
+                f = get_f();
                 f /= static_cast<floating_type>(num.get_i());
                 assign(f);
                 break;
@@ -445,27 +465,6 @@ namespace pmp
 
 /////////////////////////////////////////////////////////////////////////////
 // Non-member functions
-
-template <class CharT>
-std::basic_ostream<CharT>&
-operator<<(std::basic_ostream<CharT>& o, const pmp::Number& num)
-{
-    switch (num.get_type())
-    {
-    case pmp::Number::INTEGER:
-        o << num.get_i().str();
-        break;
-
-    case pmp::Number::FLOATING:
-        o << num.get_f().str();
-        break;
-
-    default:
-        assert(0);
-        break;
-    }
-    return o;
-}
 
 namespace pmp
 {

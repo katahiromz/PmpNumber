@@ -52,6 +52,9 @@ namespace pmp
     typedef b_mp::cpp_dec_float_50      floating_type;
     //typedef b_mp::cpp_dec_float_100     floating_type;
 
+    // returns old value
+    bool EnableIntegerDivision(bool enabled = true);
+
     class Number
     {
     public:
@@ -231,32 +234,32 @@ namespace pmp
             return num;
         }
 
-        friend inline Number operator==(const Number& num1, const Number& num2)
+        friend inline bool operator==(const Number& num1, const Number& num2)
         {
             return num1.compare(num2) == 0;
         }
 
-        friend inline Number operator!=(const Number& num1, const Number& num2)
+        friend inline bool operator!=(const Number& num1, const Number& num2)
         {
             return num1.compare(num2) != 0;
         }
 
-        friend inline Number operator<(const Number& num1, const Number& num2)
+        friend inline bool operator<(const Number& num1, const Number& num2)
         {
             return num1.compare(num2) < 0;
         }
 
-        friend inline Number operator>(const Number& num1, const Number& num2)
+        friend inline bool operator>(const Number& num1, const Number& num2)
         {
             return num1.compare(num2) > 0;
         }
 
-        friend inline Number operator<=(const Number& num1, const Number& num2)
+        friend inline bool operator<=(const Number& num1, const Number& num2)
         {
             return num1.compare(num2) <= 0;
         }
 
-        friend inline Number operator>=(const Number& num1, const Number& num2)
+        friend inline bool operator>=(const Number& num1, const Number& num2)
         {
             return num1.compare(num2) >= 0;
         }
@@ -381,7 +384,24 @@ namespace pmp
 
 template <class CharT>
 std::basic_ostream<CharT>&
-operator<<(std::basic_ostream<CharT>& o, const pmp::Number& num);
+operator<<(std::basic_ostream<CharT>& o, const pmp::Number& num)
+{
+    switch (num.get_type())
+    {
+    case pmp::Number::INTEGER:
+        o << num.get_i().str();
+        break;
+
+    case pmp::Number::FLOATING:
+        o << num.get_f().str();
+        break;
+
+    default:
+        assert(0);
+        break;
+    }
+    return o;
+}
 
 namespace pmp
 {
