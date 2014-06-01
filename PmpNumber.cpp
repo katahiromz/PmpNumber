@@ -1,458 +1,463 @@
 /////////////////////////////////////////////////////////////////////////////
-// PmpNumber --- polymorphic, multiprecision number class
+// Number --- polymorphic, multiprecision number class
 // See file "ReadMe.txt" and "License.txt".
 /////////////////////////////////////////////////////////////////////////////
 
 #include "PmpNumber.hpp"
 
-PmpNumber::PmpNumber(Type type, const std::string& str) :
-    m_inner(shared_ptr<Inner>(new Inner(type, str)))
-{
-}
+/////////////////////////////////////////////////////////////////////////////
 
-PmpNumber::PmpNumber(const std::string& str)
+namespace pmp
 {
-    if (str.find('.') == std::string::npos &&
-        str.find("e+") == std::string::npos &&
-        str.find("e-") == std::string::npos)
+    Number::Number(Type type, const std::string& str) :
+        m_inner(shared_ptr<Inner>(new Inner(type, str)))
     {
-        m_inner = shared_ptr<Inner>(new Inner(INTEGER, str));
     }
-    else
-        m_inner = shared_ptr<Inner>(new Inner(FLOATING, str));
-}
 
-PmpNumber& PmpNumber::operator+=(const PmpNumber& num)
-{
-    pmp_integer_type    i;
-    pmp_floating_type   f;
-    switch(m_inner->m_type)
+    Number::Number(const std::string& str)
     {
-    case PmpNumber::INTEGER:
-        switch(num.m_inner->m_type)
+        if (str.find('.')  == std::string::npos &&
+            str.find("e+") == std::string::npos &&
+            str.find("e-") == std::string::npos)
         {
-        case PmpNumber::INTEGER:
-            i = *m_inner->m_integer;
-            i += *num.m_inner->m_integer;
-            assign(i);
-            break;
-
-        case PmpNumber::FLOATING:
-            f = pmp_floating_type(*m_inner->m_integer);
-            f += *num.m_inner->m_floating;
-            assign(f);
-            break;
-
-        default:
-            assert(0);
-            break;
+            m_inner = shared_ptr<Inner>(new Inner(INTEGER, str));
         }
-        break;
-
-    case PmpNumber::FLOATING:
-        switch(num.m_inner->m_type)
-        {
-        case PmpNumber::INTEGER:
-            f = *m_inner->m_floating;
-            f += static_cast<pmp_floating_type>(*num.m_inner->m_integer);
-            assign(f);
-            break;
-
-        case PmpNumber::FLOATING:
-            f = *m_inner->m_floating;
-            f += *num.m_inner->m_floating;
-            assign(f);
-            break;
-
-        default:
-            assert(0);
-            break;
-        }
-        break;
+        else
+            m_inner = shared_ptr<Inner>(new Inner(FLOATING, str));
     }
-    return *this;
-}
 
-PmpNumber& PmpNumber::operator-=(const PmpNumber& num)
-{
-    pmp_integer_type    i;
-    pmp_floating_type   f;
-    switch(m_inner->m_type)
+    Number& Number::operator+=(const Number& num)
     {
-    case PmpNumber::INTEGER:
-        switch(num.m_inner->m_type)
+        integer_type    i;
+        floating_type   f;
+        switch(get_type())
         {
-        case PmpNumber::INTEGER:
-            i = *m_inner->m_integer;
-            i -= *num.m_inner->m_integer;
-            assign(i);
-            break;
-
-        case PmpNumber::FLOATING:
-            f = pmp_floating_type(*m_inner->m_integer);
-            f -= *num.m_inner->m_floating;
-            assign(f);
-            break;
-
-        default:
-            assert(0);
-            break;
-        }
-        break;
-
-    case PmpNumber::FLOATING:
-        switch(num.m_inner->m_type)
-        {
-        case PmpNumber::INTEGER:
-            f = *m_inner->m_floating;
-            f -= static_cast<pmp_floating_type>(*num.m_inner->m_integer);
-            assign(f);
-            break;
-
-        case PmpNumber::FLOATING:
-            f = *m_inner->m_floating;
-            f -= *num.m_inner->m_floating;
-            assign(f);
-            break;
-
-        default:
-            assert(0);
-            break;
-        }
-        break;
-    }
-    return *this;
-}
-
-PmpNumber& PmpNumber::operator*=(const PmpNumber& num)
-{
-    pmp_integer_type    i;
-    pmp_floating_type   f;
-    switch(m_inner->m_type)
-    {
-    case PmpNumber::INTEGER:
-        switch(num.m_inner->m_type)
-        {
-        case PmpNumber::INTEGER:
-            i = *m_inner->m_integer;
-            i *= *num.m_inner->m_integer;
-            assign(i);
-            break;
-
-        case PmpNumber::FLOATING:
-            f = pmp_floating_type(*m_inner->m_integer);
-            f *= *num.m_inner->m_floating;
-            assign(f);
-            break;
-
-        default:
-            assert(0);
-            break;
-        }
-        break;
-
-    case PmpNumber::FLOATING:
-        switch(num.m_inner->m_type)
-        {
-        case PmpNumber::INTEGER:
-            f = *m_inner->m_floating;
-            f *= static_cast<pmp_floating_type>(*num.m_inner->m_integer);
-            assign(f);
-            break;
-
-        case PmpNumber::FLOATING:
-            f = *m_inner->m_floating;
-            f *= *num.m_inner->m_floating;
-            assign(f);
-            break;
-
-        default:
-            assert(0);
-            break;
-        }
-        break;
-    }
-    return *this;
-}
-
-PmpNumber& PmpNumber::operator/=(const PmpNumber& num)
-{
-    pmp_integer_type    i;
-    pmp_floating_type   f;
-    switch(m_inner->m_type)
-    {
-    case PmpNumber::INTEGER:
-        switch(num.m_inner->m_type)
-        {
-        case PmpNumber::INTEGER:
-            if (b_mp::gcd(*m_inner->m_integer, *num.m_inner->m_integer) == 1)
+        case Number::INTEGER:
+            switch(num.get_type())
             {
-                f = static_cast<pmp_floating_type>(*m_inner->m_integer);
-                f /= static_cast<pmp_floating_type>(*num.m_inner->m_integer);
-                assign(f);
-            }
-            else
-            {
-                i = *m_inner->m_integer;
-                i /= *num.m_inner->m_integer;
+            case Number::INTEGER:
+                i = get_i();
+                i += num.get_i();
                 assign(i);
+                break;
+
+            case Number::FLOATING:
+                f = floating_type(get_i());
+                f += num.get_f();
+                assign(f);
+                break;
+
+            default:
+                assert(0);
+                break;
             }
             break;
 
-        case PmpNumber::FLOATING:
-            f = pmp_floating_type(*m_inner->m_integer);
-            f /= *num.m_inner->m_floating;
-            assign(f);
+        case Number::FLOATING:
+            switch(num.get_type())
+            {
+            case Number::INTEGER:
+                f = get_f();
+                f += static_cast<floating_type>(num.get_i());
+                assign(f);
+                break;
+
+            case Number::FLOATING:
+                f = get_f();
+                f += num.get_f();
+                assign(f);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
+            break;
+        }
+        return *this;
+    }
+
+    Number& Number::operator-=(const Number& num)
+    {
+        integer_type    i;
+        floating_type   f;
+        switch(get_type())
+        {
+        case Number::INTEGER:
+            switch(num.get_type())
+            {
+            case Number::INTEGER:
+                i = get_i();
+                i -= num.get_i();
+                assign(i);
+                break;
+
+            case Number::FLOATING:
+                f = floating_type(get_i());
+                f -= num.get_f();
+                assign(f);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
+            break;
+
+        case Number::FLOATING:
+            switch(num.get_type())
+            {
+            case Number::INTEGER:
+                f = get_f();
+                f -= static_cast<floating_type>(num.get_i());
+                assign(f);
+                break;
+
+            case Number::FLOATING:
+                f = get_f();
+                f -= num.get_f();
+                assign(f);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
+            break;
+        }
+        return *this;
+    }
+
+    Number& Number::operator*=(const Number& num)
+    {
+        integer_type    i;
+        floating_type   f;
+        switch(get_type())
+        {
+        case Number::INTEGER:
+            switch(num.get_type())
+            {
+            case Number::INTEGER:
+                i = get_i();
+                i *= num.get_i();
+                assign(i);
+                break;
+
+            case Number::FLOATING:
+                f = floating_type(get_i());
+                f *= num.get_f();
+                assign(f);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
+            break;
+
+        case Number::FLOATING:
+            switch(num.get_type())
+            {
+            case Number::INTEGER:
+                f = get_f();
+                f *= static_cast<floating_type>(num.get_i());
+                assign(f);
+                break;
+
+            case Number::FLOATING:
+                f = get_f();
+                f *= num.get_f();
+                assign(f);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
+            break;
+        }
+        return *this;
+    }
+
+    Number& Number::operator/=(const Number& num)
+    {
+        integer_type    i;
+        floating_type   f;
+        switch(get_type())
+        {
+        case Number::INTEGER:
+            switch(num.get_type())
+            {
+            case Number::INTEGER:
+                if (b_mp::gcd(get_i(), num.get_i()) == 1)
+                {
+                    f = static_cast<floating_type>(get_i());
+                    f /= static_cast<floating_type>(num.get_i());
+                    assign(f);
+                }
+                else
+                {
+                    i = get_i();
+                    i /= num.get_i();
+                    assign(i);
+                }
+                break;
+
+            case Number::FLOATING:
+                f = floating_type(get_i());
+                f /= num.get_f();
+                assign(f);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
+            break;
+
+        case Number::FLOATING:
+            switch(num.get_type())
+            {
+            case Number::INTEGER:
+                f = static_cast<floating_type>(get_i());
+                f /= static_cast<floating_type>(num.get_i());
+                assign(f);
+                break;
+
+            case Number::FLOATING:
+                f = get_f();
+                f /= num.get_f();
+                assign(f);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
             break;
 
         default:
             assert(0);
             break;
         }
-        break;
+        return *this;
+    }
 
-    case PmpNumber::FLOATING:
-        switch(num.m_inner->m_type)
+    Number& Number::operator%=(const Number& num)
+    {
+        integer_type    i;
+        floating_type   f;
+        switch(get_type())
         {
-        case PmpNumber::INTEGER:
-            f = static_cast<pmp_floating_type>(*m_inner->m_integer);
-            f /= static_cast<pmp_floating_type>(*num.m_inner->m_integer);
-            assign(f);
+        case Number::INTEGER:
+            switch(num.get_type())
+            {
+            case Number::INTEGER:
+                i = get_i();
+                i %= num.get_i();
+                assign(i);
+                break;
+
+            case Number::FLOATING:
+                f = floating_type(get_i());
+                f = b_mp::fmod(f, num.get_f());
+                assign(f);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
             break;
 
-        case PmpNumber::FLOATING:
-            f = *m_inner->m_floating;
-            f /= *num.m_inner->m_floating;
-            assign(f);
+        case Number::FLOATING:
+            switch(num.get_type())
+            {
+            case Number::INTEGER:
+                f = get_f();
+                f = b_mp::fmod(f, static_cast<floating_type>(num.get_i()));
+                assign(f);
+                break;
+
+            case Number::FLOATING:
+                f = get_f();
+                f = b_mp::fmod(f, num.get_f());
+                assign(f);
+                break;
+
+            default:
+                assert(0);
+                break;
+            }
             break;
 
         default:
             assert(0);
             break;
         }
-        break;
-
-    default:
-        assert(0);
-        break;
+        return *this;
     }
-    return *this;
-}
 
-PmpNumber& PmpNumber::operator%=(const PmpNumber& num)
-{
-    pmp_integer_type    i;
-    pmp_floating_type   f;
-    switch(m_inner->m_type)
+    bool Number::is_zero() const
     {
-    case PmpNumber::INTEGER:
-        switch(num.m_inner->m_type)
+        switch (get_type())
         {
-        case PmpNumber::INTEGER:
-            i = *m_inner->m_integer;
-            i %= *num.m_inner->m_integer;
-            assign(i);
-            break;
+        case Number::INTEGER:
+            return get_i().is_zero();
 
-        case PmpNumber::FLOATING:
-            f = pmp_floating_type(*m_inner->m_integer);
-            f = b_mp::fmod(f, *num.m_inner->m_floating);
-            assign(f);
-            break;
+        case Number::FLOATING:
+            return get_f().is_zero();
 
         default:
             assert(0);
-            break;
+            return false;
         }
-        break;
+    }
 
-    case PmpNumber::FLOATING:
-        switch(num.m_inner->m_type)
+    std::string Number::str() const
+    {
+        switch (get_type())
         {
-        case PmpNumber::INTEGER:
-            f = *m_inner->m_floating;
-            f = b_mp::fmod(f, static_cast<pmp_floating_type>(*num.m_inner->m_integer));
-            assign(f);
-            break;
+        case Number::INTEGER:
+            return get_i().str();
 
-        case PmpNumber::FLOATING:
-            f = *m_inner->m_floating;
-            f = b_mp::fmod(f, *num.m_inner->m_floating);
-            assign(f);
-            break;
+        case Number::FLOATING:
+            return get_f().str();
 
         default:
             assert(0);
-            break;
+            return "";
         }
-        break;
-
-    default:
-        assert(0);
-        break;
     }
-    return *this;
-}
 
-bool PmpNumber::is_zero() const
-{
-    switch (m_inner->m_type)
+    std::string Number::str(unsigned precision) const
     {
-    case PmpNumber::INTEGER:
-        return m_inner->m_integer->is_zero();
-
-    case PmpNumber::FLOATING:
-        return m_inner->m_floating->is_zero();
-
-    default:
-        assert(0);
-        return false;
-    }
-}
-
-std::string PmpNumber::str() const
-{
-    switch (m_inner->m_type)
-    {
-    case PmpNumber::INTEGER:
-        return m_inner->m_integer->str();
-
-    case PmpNumber::FLOATING:
-        return m_inner->m_floating->str();
-
-    default:
-        assert(0);
-        return "";
-    }
-}
-
-pmp_integer_type PmpNumber::to_i() const
-{
-    switch (m_inner->m_type)
-    {
-    case PmpNumber::INTEGER:
-        return *m_inner->m_integer;
-
-    case PmpNumber::FLOATING:
-        return pmp_integer_type(m_inner->m_floating->str());
-
-    default:
-        assert(0);
-        return 0;
-    }
-}
-
-pmp_floating_type PmpNumber::to_f() const
-{
-    switch (m_inner->m_type)
-    {
-    case PmpNumber::INTEGER:
-        return pmp_floating_type(*m_inner->m_integer);
-
-    case PmpNumber::FLOATING:
-        return *m_inner->m_floating;
-
-    default:
-        assert(0);
-        return 0;
-    }
-}
-
-int PmpNumber::compare(const PmpNumber& num) const
-{
-    pmp_floating_type f;
-    switch (m_inner->m_type)
-    {
-    case PmpNumber::INTEGER:
-        switch (num.m_inner->m_type)
+        switch (get_type())
         {
-        case PmpNumber::INTEGER:
-            return m_inner->m_integer->compare(*num.m_inner->m_integer);
+        case Number::INTEGER:
+            return get_i().str(precision);
 
-        case PmpNumber::FLOATING:
-            f = static_cast<pmp_floating_type>(*m_inner->m_integer);
-            return f.compare(*num.m_inner->m_floating);
+        case Number::FLOATING:
+            return get_f().str(precision);
+
+        default:
+            assert(0);
+            return "";
+        }
+    }
+
+    integer_type Number::to_i() const
+    {
+        switch (get_type())
+        {
+        case Number::INTEGER:
+            return get_i();
+
+        case Number::FLOATING:
+            return integer_type(get_f().str());
 
         default:
             assert(0);
             return 0;
         }
+    }
 
-    case PmpNumber::FLOATING:
-        switch (num.m_inner->m_type)
+    floating_type Number::to_f() const
+    {
+        switch (get_type())
         {
-        case PmpNumber::INTEGER:
-            f = static_cast<pmp_floating_type>(*num.m_inner->m_integer);
-            return m_inner->m_floating->compare(f);
+        case Number::INTEGER:
+            return floating_type(get_i());
 
-        case PmpNumber::FLOATING:
-            return m_inner->m_floating->compare(*num.m_inner->m_floating);
+        case Number::FLOATING:
+            return get_f();
 
         default:
             assert(0);
             return 0;
         }
-
-    default:
-        assert(0);
-        return 0;
     }
-}
 
-void PmpNumber::trim()
-{
-    pmp_integer_type    i;
-    pmp_floating_type   f;
-
-    switch (m_inner->m_type)
+    int Number::compare(const Number& num) const
     {
-    case PmpNumber::INTEGER:
-        break;
+        floating_type f;
+        switch (get_type())
+        {
+        case Number::INTEGER:
+            switch (num.get_type())
+            {
+            case Number::INTEGER:
+                return get_i().compare(num.get_i());
 
-    case PmpNumber::FLOATING:
-        i = pmp_integer_type(m_inner->m_floating->str());
-        f = static_cast<pmp_floating_type>(i);
-        if (f == *m_inner->m_floating)
-            assign(i);
-        break;
+            case Number::FLOATING:
+                f = static_cast<floating_type>(get_i());
+                return f.compare(num.get_f());
 
-    default:
-        assert(0);
-        break;
+            default:
+                assert(0);
+                return 0;
+            }
+
+        case Number::FLOATING:
+            switch (num.get_type())
+            {
+            case Number::INTEGER:
+                f = static_cast<floating_type>(num.get_i());
+                return get_f().compare(f);
+
+            case Number::FLOATING:
+                return get_f().compare(num.get_f());
+
+            default:
+                assert(0);
+                return 0;
+            }
+
+        default:
+            assert(0);
+            return 0;
+        }
     }
-}
+
+    void Number::trim()
+    {
+        integer_type    i;
+        floating_type   f;
+
+        switch (get_type())
+        {
+        case Number::INTEGER:
+            break;
+
+        case Number::FLOATING:
+            i = integer_type(get_f().str());
+            f = static_cast<floating_type>(i);
+            if (f == get_f())
+                assign(i);
+            break;
+
+        default:
+            assert(0);
+            break;
+        }
+    }
+} // namespace pmp
 
 /////////////////////////////////////////////////////////////////////////////
 // Non-member functions
 
-PmpNumber operator-(const PmpNumber& num1)
-{
-    switch (num1.m_inner->m_type)
-    {
-    case PmpNumber::INTEGER:
-        return PmpNumber(static_cast<pmp_integer_type>(-(*num1.m_inner->m_integer)));
-
-    case PmpNumber::FLOATING:
-        return PmpNumber(static_cast<pmp_floating_type>(-(*num1.m_inner->m_floating)));
-
-    default:
-        assert(0);
-        return 0;
-    }
-}
-
 template <class CharT>
 std::basic_ostream<CharT>&
-operator<<(std::basic_ostream<CharT>& o, const PmpNumber& num)
+operator<<(std::basic_ostream<CharT>& o, const pmp::Number& num)
 {
-    switch (num.m_inner->m_type)
+    switch (num.get_type())
     {
-    case PmpNumber::INTEGER:
-        o << num.m_inner->m_integer->str();
+    case pmp::Number::INTEGER:
+        o << num.get_i().str();
         break;
 
-    case PmpNumber::FLOATING:
-        o << num.m_inner->m_floating->str();
+    case pmp::Number::FLOATING:
+        o << num.get_f().str();
         break;
 
     default:
@@ -462,39 +467,42 @@ operator<<(std::basic_ostream<CharT>& o, const PmpNumber& num)
     return o;
 }
 
-PmpNumber floor(const PmpNumber& num1)
+namespace pmp
 {
-    pmp_floating_type f;
-    switch (num1.m_inner->m_type)
+    Number floor(const Number& num1)
     {
-    case PmpNumber::INTEGER:
-        return num1;
+        floating_type f;
+        switch (num1.get_type())
+        {
+        case Number::INTEGER:
+            return num1;
 
-    case PmpNumber::FLOATING:
-        f = b_mp::floor(*num1.m_inner->m_floating);
-        return PmpNumber(f);
+        case Number::FLOATING:
+            f = b_mp::floor(num1.get_f());
+            return Number(f);
 
-    default:
-        assert(0);
-        return 0;
+        default:
+            assert(0);
+            return 0;
+        }
     }
-}
 
-PmpNumber ceil(const PmpNumber& num1)
-{
-    pmp_floating_type f;
-    switch (num1.m_inner->m_type)
+    Number ceil(const Number& num1)
     {
-    case PmpNumber::INTEGER:
-        return num1;
+        floating_type f;
+        switch (num1.get_type())
+        {
+        case Number::INTEGER:
+            return num1;
 
-    case PmpNumber::FLOATING:
-        f = b_mp::ceil(*num1.m_inner->m_floating);
-        return PmpNumber(f);
+        case Number::FLOATING:
+            f = b_mp::ceil(num1.get_f());
+            return Number(f);
 
-    default:
-        assert(0);
-        return 0;
+        default:
+            assert(0);
+            return 0;
+        }
     }
 }
 
@@ -502,11 +510,12 @@ PmpNumber ceil(const PmpNumber& num1)
 // unit test and example
 
 #ifdef UNITTEST
+    using namespace pmp;
     int main(void)
     {
-        PmpNumber n1(100);
-        PmpNumber n2(200.0);
-        PmpNumber n3;
+        Number n1(100);
+        Number n2(200.0);
+        Number n3;
 
         n3 = n1;
         n3 += n2;
@@ -619,9 +628,9 @@ PmpNumber ceil(const PmpNumber& num1)
         assert(n3 == 0.0);
         std::cout << n3 << std::endl;
 
-        n3 = pmp::abs(PmpNumber("-1111111111111111111111111111111111111111111111111111111"));
+        n3 = pmp::abs(Number("-1111111111111111111111111111111111111111111111111111111"));
         std::cout << n3 << std::endl;
-        n3 = pmp::fabs(PmpNumber("-1111111111111111111111111111111111111111111111111111111.0"));
+        n3 = pmp::fabs(Number("-1111111111111111111111111111111111111111111111111111111.0"));
         std::cout << n3 << std::endl;
         n3 = pmp::sin(n1);
         std::cout << n3 << std::endl;
@@ -638,7 +647,7 @@ PmpNumber ceil(const PmpNumber& num1)
         n3 = pmp::pow(n1, n2);
         std::cout << n3 << std::endl;
 
-        PmpNumber n4(1.2);
+        Number n4(1.2);
         std::cout << n4.convert_to<int>() << std::endl;
         std::cout << n4.convert_to<__int64>() << std::endl;
         std::cout << n4.convert_to<float>() << std::endl;

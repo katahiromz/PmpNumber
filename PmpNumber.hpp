@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// PmpNumber --- polymorphic, multiprecision number class
+// Number --- polymorphic, multiprecision number class
 // See file "ReadMe.txt" and "License.txt".
 /////////////////////////////////////////////////////////////////////////////
 
@@ -43,456 +43,463 @@
 
 #define b_mp        boost::multiprecision
 
-typedef b_mp::cpp_int               pmp_integer_type;
-typedef b_mp::cpp_dec_float_50      pmp_floating_type;
-//typedef b_mp::cpp_dec_float_100     pmp_floating_type;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class PmpNumber
+namespace pmp
 {
-public:
-    enum Type
+    typedef b_mp::cpp_int               integer_type;
+    typedef b_mp::cpp_dec_float_50      floating_type;
+    //typedef b_mp::cpp_dec_float_100     floating_type;
+
+    class Number
     {
-        INTEGER, FLOATING
-    };
-
-    PmpNumber()                 : m_inner(make_shared<Inner>(0)) { }
-    PmpNumber(int i)            : m_inner(make_shared<Inner>(i)) { }
-    PmpNumber(__int64 i)        : m_inner(make_shared<Inner>(i)) { }
-    PmpNumber(double f)         : m_inner(make_shared<Inner>(f)) { }
-    PmpNumber(long double f)    : m_inner(make_shared<Inner>(f)) { }
-    PmpNumber(const pmp_integer_type& i)  : m_inner(make_shared<Inner>(i)) { }
-    PmpNumber(const pmp_floating_type& f) : m_inner(make_shared<Inner>(f)) { }
-    PmpNumber(Type type, const std::string& str);
-    PmpNumber(const std::string& str);
-    PmpNumber(const PmpNumber& num) : m_inner(num.m_inner) { }
-
-    PmpNumber& operator=(const PmpNumber& num)
-    {
-        m_inner = num.m_inner;
-        return *this;
-    }
-
-    void assign(const pmp_integer_type& i)
-    {
-        m_inner = make_shared<Inner>(i);
-    }
-
-    void assign(const pmp_floating_type& f)
-    {
-        m_inner = make_shared<Inner>(f);
-    }
-
-    void assign(const PmpNumber& num)
-    {
-        m_inner = num.m_inner;
-    }
-
-    PmpNumber& operator+=(const PmpNumber& num);
-    PmpNumber& operator-=(const PmpNumber& num);
-    PmpNumber& operator*=(const PmpNumber& num);
-    PmpNumber& operator/=(const PmpNumber& num);
-    PmpNumber& operator%=(const PmpNumber& num);
-
-    PmpNumber& operator++()
-    {
-        *this = *this + 1;
-        return *this;
-    }
-
-    PmpNumber& operator--()
-    {
-        *this = *this - 1;
-        return *this;
-    }
-
-    PmpNumber operator++(int)
-    {
-        PmpNumber num(*this);
-        this->operator++();
-        return num;
-    }
-
-    PmpNumber operator--(int)
-    {
-        PmpNumber num(*this);
-        this->operator--();
-        return num;
-    }
-
-    bool is_zero() const;
-    bool operator!() const { return is_zero(); }
-    std::string str() const;
-
-    pmp_integer_type    to_i() const;   // to integer
-    pmp_floating_type   to_f() const;   // to floating
-
-    void trim();
-
-    template <typename T>
-    T convert_to();
-
-    bool is_i() const { return m_inner->m_type == INTEGER; }
-    bool is_f() const { return m_inner->m_type == FLOATING; }
-
-    int compare(int n) const
-    {
-        return compare(static_cast<double>(n));
-    }
-
-    int compare(__int64 n) const
-    {
-        return compare(static_cast<double>(n));
-    }
-
-    int compare(double d) const
-    {
-        return compare(static_cast<PmpNumber>(d));
-    }
-
-    int compare(long double d) const
-    {
-        return compare(static_cast<PmpNumber>(d));
-    }
-
-    int compare(const PmpNumber& num) const;
-
-    void swap(PmpNumber& num)
-    {
-        m_inner.swap(num.m_inner);
-    }
-
-    friend inline PmpNumber operator+(const PmpNumber& num1)
-    {
-        return num1;
-    }
-
-    friend inline PmpNumber operator-(const PmpNumber& num1);
-
-    friend inline PmpNumber operator+(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        PmpNumber num(num1);
-        num += num2;
-        return num;
-    }
-
-    friend inline PmpNumber operator-(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        PmpNumber num(num1);
-        num -= num2;
-        return num;
-    }
-
-    friend inline PmpNumber operator*(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        PmpNumber num(num1);
-        num *= num2;
-        return num;
-    }
-
-    friend inline PmpNumber operator/(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        PmpNumber num(num1);
-        num /= num2;
-        return num;
-    }
-
-    friend inline PmpNumber operator%(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        PmpNumber num(num1);
-        num %= num2;
-        return num;
-    }
-
-    friend inline PmpNumber operator==(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        return num1.compare(num2) == 0;
-    }
-
-    friend inline PmpNumber operator!=(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        return num1.compare(num2) != 0;
-    }
-
-    friend inline PmpNumber operator<(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        return num1.compare(num2) < 0;
-    }
-
-    friend inline PmpNumber operator>(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        return num1.compare(num2) > 0;
-    }
-
-    friend inline PmpNumber operator<=(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        return num1.compare(num2) <= 0;
-    }
-
-    friend inline PmpNumber operator>=(const PmpNumber& num1, const PmpNumber& num2)
-    {
-        return num1.compare(num2) >= 0;
-    }
-
-    template <class CharT>
-    friend std::basic_ostream<CharT>&
-    operator<<(std::basic_ostream<CharT>& o, const PmpNumber& num);
-
-    friend PmpNumber abs(const PmpNumber& num1);
-    friend PmpNumber fabs(const PmpNumber& num1);
-    friend PmpNumber sqrt(const PmpNumber& num1);
-    friend PmpNumber floor(const PmpNumber& num1);
-    friend PmpNumber ceil(const PmpNumber& num1);
-    friend PmpNumber exp(const PmpNumber& num1);
-    friend PmpNumber log(const PmpNumber& num1);
-    friend PmpNumber log10(const PmpNumber& num1);
-    friend PmpNumber cos(const PmpNumber& num1);
-    friend PmpNumber sin(const PmpNumber& num1);
-    friend PmpNumber tan(const PmpNumber& num1);
-    friend PmpNumber acos(const PmpNumber& num1);
-    friend PmpNumber asin(const PmpNumber& num1);
-    friend PmpNumber atan(const PmpNumber& num1);
-    friend PmpNumber cosh(const PmpNumber& num1);
-    friend PmpNumber sinh(const PmpNumber& num1);
-    friend PmpNumber tanh(const PmpNumber& num1);
-    friend PmpNumber pow(const PmpNumber& num1, const PmpNumber& num2);
-    friend PmpNumber fmod(const PmpNumber& num1, const PmpNumber& num2);
-    friend PmpNumber atan2(const PmpNumber& num1, const PmpNumber& num2);
-
-protected:
-    struct Inner
-    {
-        Type                    m_type;
-        pmp_integer_type *      m_integer;
-        pmp_floating_type *     m_floating;
-
-        Inner() : m_type(INTEGER), m_integer(new pmp_integer_type())
+    public:
+        enum Type
         {
+            INTEGER, FLOATING
+        };
+
+        Number()                        : m_inner(make_shared<Inner>(0)) { }
+        Number(int i)                   : m_inner(make_shared<Inner>(i)) { }
+        Number(__int64 i)               : m_inner(make_shared<Inner>(i)) { }
+        Number(double f)                : m_inner(make_shared<Inner>(f)) { }
+        Number(long double f)           : m_inner(make_shared<Inner>(f)) { }
+        Number(const integer_type& i)   : m_inner(make_shared<Inner>(i)) { }
+        Number(const floating_type& f)  : m_inner(make_shared<Inner>(f)) { }
+        Number(Type type, const std::string& str);
+        Number(const std::string& str);
+        Number(const Number& num) : m_inner(num.m_inner) { }
+
+        Number& operator=(const Number& num)
+        {
+            m_inner = num.m_inner;
+            return *this;
         }
 
-        Inner(int i) :
-            m_type(INTEGER),
-            m_integer(new pmp_integer_type(i)),
-            m_floating(NULL)
+        void assign(const integer_type& i)
         {
+            m_inner = make_shared<Inner>(i);
         }
 
-        explicit Inner(__int64 i) :
-            m_type(INTEGER),
-            m_integer(new pmp_integer_type(i)),
-            m_floating(NULL)
+        void assign(const floating_type& f)
         {
+            m_inner = make_shared<Inner>(f);
         }
 
-        Inner(double f) :
-            m_type(FLOATING),
-            m_integer(NULL),
-            m_floating(new pmp_floating_type(f))
+        void assign(const Number& num)
         {
+            m_inner = num.m_inner;
         }
 
-        explicit Inner(long double f) :
-            m_type(FLOATING),
-            m_integer(NULL),
-            m_floating(new pmp_floating_type(f))
+        Number& operator+=(const Number& num);
+        Number& operator-=(const Number& num);
+        Number& operator*=(const Number& num);
+        Number& operator/=(const Number& num);
+        Number& operator%=(const Number& num);
+
+        Number& operator++()
         {
+            *this = *this + 1;
+            return *this;
         }
 
-        Inner(const pmp_integer_type& i) :
-            m_type(INTEGER),
-            m_integer(new pmp_integer_type(i)),
-            m_floating(NULL)
+        Number& operator--()
         {
+            *this = *this - 1;
+            return *this;
         }
 
-        Inner(const pmp_floating_type& f) :
-            m_type(FLOATING),
-            m_integer(NULL),
-            m_floating(new pmp_floating_type(f))
+        Number operator++(int)
         {
+            Number num(*this);
+            this->operator++();
+            return num;
         }
 
-        Inner(const Inner& inner) :
-            m_type(inner.m_type),
-            m_integer(NULL),
-            m_floating(NULL)
+        Number operator--(int)
         {
-            m_integer = (inner.m_integer
-                            ? new pmp_integer_type(*inner.m_integer)
-                            : NULL);
-            m_floating = (inner.m_floating
-                            ? new pmp_floating_type(*inner.m_floating)
-                            : NULL);
+            Number num(*this);
+            this->operator--();
+            return num;
         }
 
-        Inner(Type type, const std::string& str) :
-            m_type(type),
-            m_integer(NULL),
-            m_floating(NULL)
+        bool is_zero() const;
+        bool operator!() const { return is_zero(); }
+        std::string str() const;
+        std::string str(unsigned precision) const;
+
+        Type get_type() const  { return m_inner->m_type; }
+
+              integer_type&   get_i()        { return *m_inner.get()->m_integer;    }
+        const integer_type&   get_i() const  { return *m_inner->m_integer;          }
+              floating_type&  get_f()        { return *m_inner.get()->m_floating;   }
+        const floating_type&  get_f() const  { return *m_inner->m_floating;         }
+
+        integer_type    to_i() const;   // to integer
+        floating_type   to_f() const;   // to floating
+
+        void trim();
+
+        template <typename T>
+        T convert_to();
+
+        bool is_i() const { return get_type() == INTEGER; }
+        bool is_f() const { return get_type() == FLOATING; }
+
+        int compare(int n) const
         {
-            switch (type)
+            return compare(static_cast<double>(n));
+        }
+
+        int compare(__int64 n) const
+        {
+            return compare(static_cast<double>(n));
+        }
+
+        int compare(double d) const
+        {
+            return compare(static_cast<Number>(d));
+        }
+
+        int compare(long double d) const
+        {
+            return compare(static_cast<Number>(d));
+        }
+
+        int compare(const Number& num) const;
+
+        void swap(Number& num)
+        {
+            m_inner.swap(num.m_inner);
+        }
+
+    public: // friend functions
+        friend inline Number operator+(const Number& num1)
+        {
+            return num1;
+        }
+
+        friend inline Number operator-(const Number& num1)
+        {
+            switch (num1.get_type())
             {
-            case INTEGER:
-                m_integer = new pmp_integer_type(str);
-                break;
+            case pmp::Number::INTEGER:
+                return Number(static_cast<integer_type>(-(*num1.m_inner->m_integer)));
 
-            case FLOATING:
-                m_floating = new pmp_floating_type(str);
-                break;
+            case pmp::Number::FLOATING:
+                return Number(static_cast<floating_type>(-(*num1.m_inner->m_floating)));
 
             default:
                 assert(0);
-                break;
+                return 0;
             }
         }
 
-        ~Inner()
+        friend inline Number operator+(const Number& num1, const Number& num2)
         {
-            delete m_integer;
-            delete m_floating;
+            Number num(num1);
+            num += num2;
+            return num;
         }
-    }; // struct Inner
-    shared_ptr<Inner> m_inner;
-}; // class PmpNumber
 
-template <typename T>
-inline T PmpNumber::convert_to()
-{
-    switch (m_inner->m_type)
+        friend inline Number operator-(const Number& num1, const Number& num2)
+        {
+            Number num(num1);
+            num -= num2;
+            return num;
+        }
+
+        friend inline Number operator*(const Number& num1, const Number& num2)
+        {
+            Number num(num1);
+            num *= num2;
+            return num;
+        }
+
+        friend inline Number operator/(const Number& num1, const Number& num2)
+        {
+            Number num(num1);
+            num /= num2;
+            return num;
+        }
+
+        friend inline Number operator%(const Number& num1, const Number& num2)
+        {
+            Number num(num1);
+            num %= num2;
+            return num;
+        }
+
+        friend inline Number operator==(const Number& num1, const Number& num2)
+        {
+            return num1.compare(num2) == 0;
+        }
+
+        friend inline Number operator!=(const Number& num1, const Number& num2)
+        {
+            return num1.compare(num2) != 0;
+        }
+
+        friend inline Number operator<(const Number& num1, const Number& num2)
+        {
+            return num1.compare(num2) < 0;
+        }
+
+        friend inline Number operator>(const Number& num1, const Number& num2)
+        {
+            return num1.compare(num2) > 0;
+        }
+
+        friend inline Number operator<=(const Number& num1, const Number& num2)
+        {
+            return num1.compare(num2) <= 0;
+        }
+
+        friend inline Number operator>=(const Number& num1, const Number& num2)
+        {
+            return num1.compare(num2) >= 0;
+        }
+
+    protected:  // inner
+        struct Inner
+        {
+            Type                    m_type;
+            integer_type *      m_integer;
+            floating_type *     m_floating;
+
+            Inner() : m_type(INTEGER), m_integer(new integer_type())
+            {
+            }
+
+            Inner(int i) :
+                m_type(INTEGER),
+                m_integer(new integer_type(i)),
+                m_floating(NULL)
+            {
+            }
+
+            explicit Inner(__int64 i) :
+                m_type(INTEGER),
+                m_integer(new integer_type(i)),
+                m_floating(NULL)
+            {
+            }
+
+            Inner(double f) :
+                m_type(FLOATING),
+                m_integer(NULL),
+                m_floating(new floating_type(f))
+            {
+            }
+
+            explicit Inner(long double f) :
+                m_type(FLOATING),
+                m_integer(NULL),
+                m_floating(new floating_type(f))
+            {
+            }
+
+            Inner(const integer_type& i) :
+                m_type(INTEGER),
+                m_integer(new integer_type(i)),
+                m_floating(NULL)
+            {
+            }
+
+            Inner(const floating_type& f) :
+                m_type(FLOATING),
+                m_integer(NULL),
+                m_floating(new floating_type(f))
+            {
+            }
+
+            Inner(const Inner& inner) :
+                m_type(inner.m_type),
+                m_integer(NULL),
+                m_floating(NULL)
+            {
+                m_integer = (inner.m_integer
+                                ? new integer_type(*inner.m_integer)
+                                : NULL);
+                m_floating = (inner.m_floating
+                                ? new floating_type(*inner.m_floating)
+                                : NULL);
+            }
+
+            Inner(Type type, const std::string& str) :
+                m_type(type),
+                m_integer(NULL),
+                m_floating(NULL)
+            {
+                switch (type)
+                {
+                case INTEGER:
+                    m_integer = new integer_type(str);
+                    break;
+
+                case FLOATING:
+                    m_floating = new floating_type(str);
+                    break;
+
+                default:
+                    assert(0);
+                    break;
+                }
+            }
+
+            ~Inner()
+            {
+                delete m_integer;
+                delete m_floating;
+            }
+        }; // struct Inner
+
+        shared_ptr<Inner> m_inner;
+    }; // class Number
+
+    template <typename T>
+    inline T Number::convert_to()
     {
-    case INTEGER:
-        return m_inner->m_integer->convert_to<T>();
+        switch (get_type())
+        {
+        case INTEGER:
+            return m_inner->m_integer->convert_to<T>();
 
-    case FLOATING:
-        return m_inner->m_floating->convert_to<T>();
+        case FLOATING:
+            return m_inner->m_floating->convert_to<T>();
 
-    default:
-        assert(0);
-        return 0;
+        default:
+            assert(0);
+            return 0;
+        }
     }
-}
+} // namespace pmp
 
 /////////////////////////////////////////////////////////////////////////////
 // Non-member functions
 
+template <class CharT>
+std::basic_ostream<CharT>&
+operator<<(std::basic_ostream<CharT>& o, const pmp::Number& num);
+
 namespace pmp
 {
-    inline PmpNumber abs(const PmpNumber& num1)
+    inline Number abs(const Number& num1)
     {
-        pmp_integer_type i = b_mp::abs(num1.to_i());
-        return PmpNumber(i);
+        integer_type i = b_mp::abs(num1.to_i());
+        return Number(i);
     }
 
-    inline PmpNumber fabs(const PmpNumber& num1)
+    inline Number fabs(const Number& num1)
     {
-        pmp_floating_type f = b_mp::fabs(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::fabs(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber sqrt(const PmpNumber& num1)
+    inline Number sqrt(const Number& num1)
     {
-        pmp_floating_type f = b_mp::sqrt(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::sqrt(num1.to_f());
+        return Number(f);
     }
 
-    PmpNumber floor(const PmpNumber& num1);
-    PmpNumber ceil(const PmpNumber& num1);
+    Number floor(const Number& num1);
+    Number ceil(const Number& num1);
 
-    inline PmpNumber exp(const PmpNumber& num1)
+    inline Number exp(const Number& num1)
     {
-        pmp_floating_type f = b_mp::exp(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::exp(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber log(const PmpNumber& num1)
+    inline Number log(const Number& num1)
     {
-        pmp_floating_type f = b_mp::log(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::log(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber log10(const PmpNumber& num1)
+    inline Number log10(const Number& num1)
     {
-        pmp_floating_type f = b_mp::log10(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::log10(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber cos(const PmpNumber& num1)
+    inline Number cos(const Number& num1)
     {
-        pmp_floating_type f = b_mp::cos(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::cos(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber sin(const PmpNumber& num1)
+    inline Number sin(const Number& num1)
     {
-        pmp_floating_type f = b_mp::sin(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::sin(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber tan(const PmpNumber& num1)
+    inline Number tan(const Number& num1)
     {
-        pmp_floating_type f = b_mp::tan(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::tan(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber acos(const PmpNumber& num1)
+    inline Number acos(const Number& num1)
     {
-        pmp_floating_type f = b_mp::acos(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::acos(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber asin(const PmpNumber& num1)
+    inline Number asin(const Number& num1)
     {
-        pmp_floating_type f = b_mp::asin(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::asin(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber atan(const PmpNumber& num1)
+    inline Number atan(const Number& num1)
     {
-        pmp_floating_type f = b_mp::atan(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::atan(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber cosh(const PmpNumber& num1)
+    inline Number cosh(const Number& num1)
     {
-        pmp_floating_type f = b_mp::cosh(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::cosh(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber sinh(const PmpNumber& num1)
+    inline Number sinh(const Number& num1)
     {
-        pmp_floating_type f = b_mp::sinh(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::sinh(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber tanh(const PmpNumber& num1)
+    inline Number tanh(const Number& num1)
     {
-        pmp_floating_type f = b_mp::tanh(num1.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::tanh(num1.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber pow(const PmpNumber& num1, const PmpNumber& num2)
+    inline Number pow(const Number& num1, const Number& num2)
     {
-        pmp_floating_type f = b_mp::pow(num1.to_f(), num2.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::pow(num1.to_f(), num2.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber fmod(const PmpNumber& num1, const PmpNumber& num2)
+    inline Number fmod(const Number& num1, const Number& num2)
     {
-        pmp_floating_type f = b_mp::fmod(num1.to_f(), num2.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::fmod(num1.to_f(), num2.to_f());
+        return Number(f);
     }
 
-    inline PmpNumber atan2(const PmpNumber& num1, const PmpNumber& num2)
+    inline Number atan2(const Number& num1, const Number& num2)
     {
-        pmp_floating_type f = b_mp::atan2(num1.to_f(), num2.to_f());
-        return PmpNumber(f);
+        floating_type f = b_mp::atan2(num1.to_f(), num2.to_f());
+        return Number(f);
     }
 }
 
 namespace std
 {
-    inline void swap(PmpNumber& num1, PmpNumber& num2)
+    inline void swap(pmp::Number& num1, pmp::Number& num2)
     {
         num1.swap(num2);
     }
