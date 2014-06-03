@@ -755,6 +755,29 @@ namespace pmp
             break;
         }
     }
+
+    /*static*/ integer_type f_to_i(const floating_type& f)
+    {
+        std::string str = f.str(0, std::ios_base::fixed);
+        std::size_t i = str.find('.');
+        if (i != std::string::npos)
+            str = str.substr(0, i);
+        return integer_type(str);
+    }
+
+    /*static*/ rational_type f_to_r(const floating_type& f)
+    {
+        integer_type n = f_to_i(f);
+        floating_type m = f - i_to_f(n);
+        if (m.is_zero())
+            return rational_type(n, integer_type(1));
+
+        integer_type k("620448401733239439360000");
+        m *= floating_type(k);
+        integer_type j = f_to_i(m);
+        j += n * k + 1;
+        return rational_type(j, k);
+    }
 } // namespace pmp
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1000,7 +1023,7 @@ namespace pmp
         std::cout << n4.convert_to<long double>() << std::endl;
         std::cout << n4.to_i() << std::endl;
         std::cout << n4.to_f() << std::endl;
-        std::cout << n4.to_r() << std::endl;
+        std::cout << pmp::r_to_f(n4.to_r()) << std::endl;
 
         Number n5("1.000000000000000000000000000000000000000000000000000000001");
         std::cout << "n5" << std::endl;
@@ -1012,7 +1035,7 @@ namespace pmp
         std::cout << n5.convert_to<long double>() << std::endl;
         std::cout << n5.to_i() << std::endl;
         std::cout << n5.to_f() << std::endl;
-        std::cout << n5.to_r() << std::endl;
+        std::cout << pmp::r_to_f(n5.to_r()) << std::endl;
 
         Number n6("0.000000000000000000000000000000000000000000000000000000001");
         std::cout << "n6" << std::endl;
@@ -1024,7 +1047,7 @@ namespace pmp
         std::cout << n6.convert_to<long double>() << std::endl;
         std::cout << n6.to_i() << std::endl;
         std::cout << n6.to_f() << std::endl;
-        std::cout << n6.to_r() << std::endl;
+        std::cout << pmp::r_to_f(n6.to_r()) << std::endl;
 
         Number n7("1000000000000000000000000000000000000000000000000000000001");
         std::cout << "n7" << std::endl;
@@ -1036,7 +1059,7 @@ namespace pmp
         std::cout << n7.convert_to<long double>() << std::endl;
         std::cout << n7.to_i() << std::endl;
         std::cout << n7.to_f() << std::endl;
-        std::cout << n7.to_r() << std::endl;
+        std::cout << pmp::r_to_f(n7.to_r()) << std::endl;
 
         Number n8("99999999999999999999999999999999999999999999999999999.01");
         std::cout << "n8" << std::endl;
@@ -1048,7 +1071,7 @@ namespace pmp
         std::cout << n8.convert_to<long double>() << std::endl;
         std::cout << n8.to_i() << std::endl;
         std::cout << n8.to_f() << std::endl;
-        std::cout << n8.to_r() << std::endl;
+        std::cout << pmp::r_to_f(n8.to_r()) << std::endl;
 
         Number n9("100000000", "200000000000000");
         std::cout << "n9" << std::endl;
@@ -1060,7 +1083,7 @@ namespace pmp
         std::cout << n9.convert_to<long double>() << std::endl;
         std::cout << n9.to_i() << std::endl;
         std::cout << n9.to_f() << std::endl;
-        std::cout << n9.to_r() << std::endl;
+        std::cout << pmp::r_to_f(n9.to_r()) << std::endl;
 
         Number n10("100000000", "200000");
         std::cout << "n10" << std::endl;
@@ -1072,7 +1095,7 @@ namespace pmp
         std::cout << n10.convert_to<long double>() << std::endl;
         std::cout << n10.to_i() << std::endl;
         std::cout << n10.to_f() << std::endl;
-        std::cout << n10.to_r() << std::endl;
+        std::cout << pmp::r_to_f(n10.to_r()) << std::endl;
 
         return 0;
     }

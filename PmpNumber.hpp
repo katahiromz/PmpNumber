@@ -53,6 +53,31 @@ namespace pmp
     typedef b_mp::cpp_rational          rational_type;
     static const unsigned s_default_precision = 50;
 
+    inline floating_type i_to_f(const integer_type& i)
+    {
+        return floating_type(i);
+    }
+
+    inline rational_type i_to_r(const integer_type& i)
+    {
+        return rational_type(i, integer_type(1));
+    }
+
+    integer_type  f_to_i(const floating_type& f);
+    rational_type f_to_r(const floating_type& f);
+
+    inline integer_type  r_to_i(const rational_type& r)
+    {
+        integer_type i = b_mp::numerator(r);
+        i /= b_mp::denominator(r);
+        return i;
+    }
+
+    inline floating_type r_to_f(const rational_type& r)
+    {
+        return floating_type(r);
+    }
+
     class Number
     {
     public:
@@ -175,6 +200,13 @@ namespace pmp
         integer_type    to_i() const;   // to integer
         floating_type   to_f() const;   // to floating
         rational_type   to_r() const;   // to rational
+
+        floating_type   i_to_f() const    { return pmp::i_to_f(get_i()); }
+        rational_type   i_to_r() const    { return pmp::i_to_r(get_i()); }
+        integer_type    f_to_i() const    { return pmp::f_to_i(get_f()); }
+        rational_type   f_to_r() const    { return pmp::f_to_r(get_f()); }
+        integer_type    r_to_i() const    { return pmp::r_to_i(get_r()); }
+        floating_type   r_to_f() const    { return pmp::r_to_f(get_r()); }
 
         void trim();
 
@@ -307,80 +339,7 @@ namespace pmp
         {
             return s_default_precision;
         }
-        
-        static floating_type i_to_f(const integer_type& i)
-        {
-            return floating_type(i);
-        }
 
-        static rational_type i_to_r(const integer_type& i)
-        {
-            return rational_type(i, integer_type(1));
-        }
-
-        static integer_type  f_to_i(const floating_type& f)
-        {
-            std::string str = f.str(0, std::ios_base::fixed);
-            std::size_t i = str.find('.');
-            if (i != std::string::npos)
-                str = str.substr(0, i);
-            return integer_type(str);
-        }
-
-        static rational_type f_to_r(const floating_type& f)
-        {
-            integer_type n(1);
-            unsigned prec = default_precision();
-            while (prec-- > 0)
-                n *= 10;
-            floating_type newf(f);
-            newf *= static_cast<floating_type>(n);
-            integer_type quot = f_to_i(newf);
-            return rational_type(quot, n);
-        }
-
-        static integer_type  r_to_i(const rational_type& r)
-        {
-            integer_type i = b_mp::numerator(r);
-            i /= b_mp::denominator(r);
-            return i;
-        }
-
-        static floating_type r_to_f(const rational_type& r)
-        {
-            return floating_type(r);
-        }
-
-    public:
-        floating_type i_to_f() const
-        {
-            return i_to_f(get_i());
-        }
-
-        rational_type i_to_r() const
-        {
-            return i_to_r(get_i());
-        }
-
-        integer_type  f_to_i() const
-        {
-            return f_to_i(get_f());
-        }
-
-        rational_type f_to_r() const
-        {
-            return f_to_r(get_f());
-        }
-
-        integer_type  r_to_i() const
-        {
-            return r_to_i(get_r());
-        }
-
-        floating_type r_to_f() const
-        {
-            return floating_type(get_r());
-        }
 
     protected:  // inner
         struct Inner
