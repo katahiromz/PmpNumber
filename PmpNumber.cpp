@@ -772,9 +772,9 @@ namespace pmp
         if (m.is_zero())
             return rational_type(n, integer_type(1));
 
-        integer_type k("620448401733239439360000");
+        integer_type k("620448401733239439360000"); // 24!
         m *= floating_type(k);
-        integer_type j = f_to_i(m);
+        integer_type j = f_to_i(m + 0.5);
         j += n * k + 1;
         return rational_type(j, k);
     }
