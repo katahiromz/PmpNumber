@@ -13,8 +13,13 @@ DEFS = -std=c++0x -static -DUNITTEST
 
 INCLUDES = -I$(BOOST_DIR)
 
-CXXFLAGS = $(DEFS) $(INCLUDES) -O9 -Ofast -DNDEBUG
-#CXXFLAGS = $(DEFS) $(INCLUDES) -O0 -g -ggdb -DDEBUG -D_DEBUG
+OPTIONS =
+#OPTIONS = PMP_INTDIV_INTEGER   // The result of integer division is integer.
+#OPTIONS = PMP_INTDIV_FLOATING  // The result of integer division is floating.
+#OPTIONS = PMP_INTDIV_RATIONAL  // The result of integer division is rational.
+
+CXXFLAGS = $(DEFS) $(INCLUDES) $(OPTIONS) -O9 -Ofast -DNDEBUG
+#CXXFLAGS = $(DEFS) $(INCLUDES) $(OPTIONS) -O0 -g -ggdb -DDEBUG -D_DEBUG
 
 HEADERS = \
 	PmpNumber.hpp \
