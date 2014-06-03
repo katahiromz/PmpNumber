@@ -109,6 +109,11 @@ namespace pmp
         {
         }
 
+        Number(const Number& num, const Number& denom) :
+            m_inner(make_shared<Inner>(num.to_i(), denom.to_i()))
+        {
+        }
+
         Number(const std::string& num, const std::string& denom) :
             m_inner(make_shared<Inner>(integer_type(num), integer_type(denom)))
         {
