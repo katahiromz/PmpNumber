@@ -71,6 +71,7 @@ namespace pmp
                 r = to_r();
                 r += num.get_r();
                 assign(r);
+                break;
 
             default:
                 assert(0);
@@ -206,7 +207,7 @@ namespace pmp
             case Number::INTEGER:
                 r = get_r();
                 r -= num.to_r();
-                assign(f);
+                assign(r);
                 break;
 
             case Number::FLOATING:
@@ -218,7 +219,7 @@ namespace pmp
             case Number::RATIONAL:
                 r = get_r();
                 r -= num.get_r();
-                assign(f);
+                assign(r);
                 break;
 
             default:

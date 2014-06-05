@@ -195,12 +195,12 @@ namespace pmp
 
         Type type() const  { return m_inner->m_type; }
 
-              integer_type&   get_i()       { assert(is_get_i()); return *m_inner.get()->m_integer;  }
-        const integer_type&   get_i() const { assert(is_get_i()); return *m_inner->m_integer;        }
-              floating_type&  get_f()       { assert(is_get_f()); return *m_inner.get()->m_floating; }
-        const floating_type&  get_f() const { assert(is_get_f()); return *m_inner->m_floating;       }
-              rational_type&  get_r()       { assert(is_get_r()); return *m_inner.get()->m_rational; }
-        const rational_type&  get_r() const { assert(is_get_r()); return *m_inner->m_rational;       }
+              integer_type&   get_i()       { assert(is_i()); return *m_inner.get()->m_integer;  }
+        const integer_type&   get_i() const { assert(is_i()); return *m_inner->m_integer;        }
+              floating_type&  get_f()       { assert(is_f()); return *m_inner.get()->m_floating; }
+        const floating_type&  get_f() const { assert(is_f()); return *m_inner->m_floating;       }
+              rational_type&  get_r()       { assert(is_r()); return *m_inner.get()->m_rational; }
+        const rational_type&  get_r() const { assert(is_r()); return *m_inner->m_rational;       }
 
         integer_type    to_i() const;   // to integer
         floating_type   to_f() const;   // to floating
@@ -218,9 +218,9 @@ namespace pmp
         template <typename T>
         T convert_to();
 
-        bool is_get_i() const { return type() == INTEGER; }
-        bool is_get_f() const { return type() == FLOATING; }
-        bool is_get_r() const { return type() == RATIONAL; }
+        bool is_i() const { return type() == INTEGER; }
+        bool is_f() const { return type() == FLOATING; }
+        bool is_r() const { return type() == RATIONAL; }
 
         int compare(int n) const
         {
@@ -427,7 +427,7 @@ namespace pmp
             }
 
             Inner(const rational_type& r) :
-                m_type(FLOATING),
+                m_type(RATIONAL),
                 m_integer(NULL),
                 m_floating(NULL),
                 m_rational(new rational_type(r))
@@ -692,7 +692,7 @@ namespace pmp
     inline Number denominator(const Number& num1)
     {
         if (num1.type() == Number::RATIONAL)
-            return b_mp::numerator(num1.get_r());
+            return b_mp::denominator(num1.get_r());
         else
             return 1;
     }
