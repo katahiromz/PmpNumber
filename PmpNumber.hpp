@@ -20,23 +20,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // smart pointers
 
-#ifndef shared_ptr
-    #if (__cplusplus >= 201103L)
-        #include <memory>
-        using std::shared_ptr;
-        using std::static_pointer_cast;
-        using std::dynamic_pointer_cast;
-        using std::make_shared;
-    #else
-        #include <boost/shared_ptr.hpp>
-        #include <boost/make_shared.hpp>
-        using boost::shared_ptr;
-        using boost::static_pointer_cast;
-        using boost::dynamic_pointer_cast;
-        using boost::make_shared;
-    #endif
-    #define shared_ptr shared_ptr
-#endif
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 /////////////////////////////////////////////////////////////////////////////
 // Boost.Multiprecision
@@ -109,42 +94,42 @@ namespace pmp
         };
         typedef std::vector<Number> vector_type;
 
-        Number()                        : m_inner(make_shared<Inner>(0)) { }
-        Number(int i)                   : m_inner(make_shared<Inner>(i)) { }
-        Number(__int64 i)               : m_inner(make_shared<Inner>(i)) { }
-        Number(double f)                : m_inner(make_shared<Inner>(f)) { }
-        Number(long double f)           : m_inner(make_shared<Inner>(f)) { }
-        Number(const integer_type& i)   : m_inner(make_shared<Inner>(i)) { }
-        Number(const floating_type& f)  : m_inner(make_shared<Inner>(f)) { }
-        Number(const rational_type& r)  : m_inner(make_shared<Inner>(r)) { }
+        Number()                        : m_inner(boost::make_shared<Inner>(0)) { }
+        Number(int i)                   : m_inner(boost::make_shared<Inner>(i)) { }
+        Number(__int64 i)               : m_inner(boost::make_shared<Inner>(i)) { }
+        Number(double f)                : m_inner(boost::make_shared<Inner>(f)) { }
+        Number(long double f)           : m_inner(boost::make_shared<Inner>(f)) { }
+        Number(const integer_type& i)   : m_inner(boost::make_shared<Inner>(i)) { }
+        Number(const floating_type& f)  : m_inner(boost::make_shared<Inner>(f)) { }
+        Number(const rational_type& r)  : m_inner(boost::make_shared<Inner>(r)) { }
 
-        Number(int num, int denom) : m_inner(make_shared<Inner>(num, denom))
+        Number(int num, int denom) : m_inner(boost::make_shared<Inner>(num, denom))
         {
         }
 
         Number(__int64 num, __int64 denom) :
-            m_inner(make_shared<Inner>(num, denom))
+            m_inner(boost::make_shared<Inner>(num, denom))
         {
         }
 
         Number(const integer_type& num, const integer_type& denom) :
-            m_inner(make_shared<Inner>(num, denom))
+            m_inner(boost::make_shared<Inner>(num, denom))
         {
         }
 
         Number(const Number& num, const Number& denom) :
-            m_inner(make_shared<Inner>(num.to_i(), denom.to_i()))
+            m_inner(boost::make_shared<Inner>(num.to_i(), denom.to_i()))
         {
         }
 
         Number(const std::string& num, const std::string& denom) :
-            m_inner(make_shared<Inner>(integer_type(num), integer_type(denom)))
+            m_inner(boost::make_shared<Inner>(integer_type(num), integer_type(denom)))
         {
         }
 
 #ifndef PMP_DISABLE_VECTOR
         Number(const vector_type& vec) :
-            m_inner(make_shared<Inner>(vector_type(vec)))
+            m_inner(boost::make_shared<Inner>(vector_type(vec)))
         {
         }
 #endif
@@ -161,22 +146,22 @@ namespace pmp
 
         void assign(const integer_type& i)
         {
-            m_inner = make_shared<Inner>(i);
+            m_inner = boost::make_shared<Inner>(i);
         }
 
         void assign(const floating_type& f)
         {
-            m_inner = make_shared<Inner>(f);
+            m_inner = boost::make_shared<Inner>(f);
         }
 
         void assign(const rational_type& r)
         {
-            m_inner = make_shared<Inner>(r);
+            m_inner = boost::make_shared<Inner>(r);
         }
 
         void assign(const std::string& str)
         {
-            m_inner = make_shared<Inner>(str);
+            m_inner = boost::make_shared<Inner>(str);
         }
 
         void assign(const Number& num)
@@ -709,7 +694,7 @@ namespace pmp
             }
         }; // struct Inner
 
-        shared_ptr<Inner> m_inner;
+        boost::shared_ptr<Inner> m_inner;
     }; // class Number
 
     #ifdef PMP_INTDIV_INTEGER
